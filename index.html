@@ -691,11 +691,12 @@ function renderHub() {
     const isActive = m.type === 'active';
     const isFinal = m.type === 'final';
     const allKeys = Object.values(state.keys).every(v => v);
-    const canStart = isFinal ? (done || allKeys) : true;
+    const completedCount = state.completed.length;
+    const unlocked = isFinal ? (done || (allKeys && completedCount >= 11)) : true;
     const cardClass = isFinal ? 'final-boss' : (isActive ? 'active-challenge' : '');
-    const unlockedClass = isFinal && allKeys ? 'unlocked' : '';
+    const unlockedClass = isFinal && unlocked && !done ? 'unlocked' : '';
     return `
-      <div class="mission-card ${done ? 'completed' : ''} ${cardClass} ${unlockedClass}" onclick="openMission('${m.id}')" ${!canStart && !done ? 'style="opacity:0.5;cursor:not-allowed;"' : ''}>
+      <div class="mission-card ${done ? 'completed' : ''} ${cardClass} ${unlockedClass}" onclick="openMission('${m.id}')" ${!unlocked && !done ? 'style="opacity:0.5;cursor:not-allowed;"' : ''}>
         <div class="mission-icon">${m.icon}</div>
         <h3>${m.title}</h3>
         <p>${m.brief}</p>
@@ -703,7 +704,7 @@ function renderHub() {
           ${m.langs.map(l => `<span class="badge lang-${l.toLowerCase()}">${l}</span>`).join('')}
           ${isActive ? `<span class="badge active">⚡ ACTIVE</span>` : ''}
           ${m.tasks ? `<span class="badge">${m.tasks.length} tasks</span>` : ''}
-          ${isFinal && !allKeys && !done ? `<span class="badge" style="background:rgba(255,0,170,0.2);color:var(--neon-pink);">🔒 LOCKED</span>` : ''}
+          ${isFinal && !unlocked && !done ? `<span class="badge" style="background:rgba(255,0,170,0.2);color:var(--neon-pink);">🔒 LOCKED</span>` : ''}
           ${done ? `<span class="badge" style="background:rgba(57,255,20,0.2);color:var(--neon-green);">✓ DONE</span>` : ''}
         </div>
       </div>
@@ -716,7 +717,7 @@ function openMission(id) {
   if (!m) return;
   if (m.type === 'final') {
     const allKeys = Object.values(state.keys).every(v => v);
-    if (!allKeys) { alert('⚠️ Собери все 4 ключа!'); return; }
+    if (!allKeys || state.completed.length < 11) { alert('⚠️ Собери все 4 ключа и пройди минимум 11 миссий!'); return; }
     if (state.completed.includes(id)) {
       if (!confirm('⚠️ Миссия уже пройдена. Пройти заново?')) return;
     }
@@ -853,7 +854,7 @@ function checkGroupKeys() {
   keyGroups.forEach(group => {
     if (state.keys[group.key]) return;
     const completedInGroup = group.missionIds.filter(id => state.completed.includes(id)).length;
-    if (completedInGroup >= 2) {
+    if (completedInGroup >= 3) {
       state.keys[group.key] = true;
       const el = document.getElementById('key-' + group.key);
       if (el) el.classList.add('collected');
@@ -934,6 +935,21 @@ function renderActiveChallenge(m) {
         <span class="badge active">⚡ ACTIVE CHALLENGE</span>
       </div>
     </div>
+    ${isKaraoke ? `
+    <div class="active-challenge-box">
+      <h3>⚡ TIME TO MOVE!</h3>
+      <div class="timer" id="timer">${m.duration}:00</div>
+      <div class="challenge-instructions">
+        <h4 style="color:var(--neon-yellow);margin-bottom:10px;">📋 Instructions:</h4>
+        <ol>
+          ${m.instructions.map(i => `<li>${i}</li>`).join('')}
+        </ol>
+      </div>
+      <button class="btn" id="startTimerBtn" onclick="startTimer(${m.duration})">▶ START TIMER</button>
+      <button class="btn secondary" id="completeBtn" onclick="completeActiveChallenge()" style="display:none;margin-top:10px;">✓ COMPLETE CHALLENGE</button>
+    </div>
+    ${songHTML}
+    ` : `
     ${songHTML}
     <div class="active-challenge-box">
       <h3>⚡ TIME TO MOVE!</h3>
@@ -948,6 +964,7 @@ function renderActiveChallenge(m) {
       <button class="btn secondary" id="completeBtn" onclick="completeActiveChallenge()" style="display:none;margin-top:10px;">✓ COMPLETE CHALLENGE</button>
     </div>
     ${phrasesHTML}
+    `}
   `;
 }
 
@@ -1028,6 +1045,12 @@ function addXP(amount) {
 function startFinalBoss() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-mission').classList.add('active');
+  const lines = [
+    { lang: '🇬🇧 EN', text: `Hello! My name is ${state.agent}. I am ${state.age} years old. I live in Russia. I speak four languages!`, voice: 'en-US' },
+    { lang: '🇫🇷 FR', text: `Bonjour! Je m'appelle ${state.agent}. J'ai ${state.age} ans. J'habite en Russie. Je parle quatre langues!`, voice: 'fr-FR' },
+    { lang: '🇪🇸 ES', text: `¡Hola! Me llamo ${state.agent}. Tengo ${state.age} años. Vivo en Rusia. ¡Hablo cuatro idiomas!`, voice: 'es-ES' },
+    { lang: '🇩🇪 DE', text: `Hallo! Ich heiße ${state.agent}. Ich bin ${state.age} Jahre alt. Ich wohne in Russland. Ich spreche vier Sprachen!`, voice: 'de-DE' }
+  ];
   const container = document.getElementById('missionContent');
   container.innerHTML = `
     <div class="mission-header">
@@ -1037,20 +1060,14 @@ function startFinalBoss() {
     </div>
     <div class="video-template">
       <h3>📹 YOUR VIDEO SCRIPT</h3>
-      <p style="color:var(--text-dim);margin-bottom:20px;">Прочитай шаблон на каждом языке и запиши на камеру. Говори чётко и с улыбкой!</p>
-      
-      <div class="template-line">
-        <span class="lang">🇬🇧 EN:</span> Hello! My name is <strong>${state.agent}</strong>. I am <strong>${state.age}</strong> years old. I live in Russia. I speak four languages!
-      </div>
-      <div class="template-line">
-        <span class="lang">🇫🇷 FR:</span> Bonjour! Je m'appelle <strong>${state.agent}</strong>. J'ai <strong>${state.age}</strong> ans. J'habite en Russie. Je parle quatre langues!
-      </div>
-      <div class="template-line">
-        <span class="lang">🇪🇸 ES:</span> ¡Hola! Me llamo <strong>${state.agent}</strong>. Tengo <strong>${state.age}</strong> años. Vivo en Rusia. ¡Hablo cuatro idiomas!
-      </div>
-      <div class="template-line">
-        <span class="lang">🇩🇪 DE:</span> Hallo! Ich heiße <strong>${state.agent}</strong>. Ich bin <strong>${state.age}</strong> Jahre alt. Ich wohne in Russland. Ich spreche vier Sprachen!
-      </div>
+      <p style="color:var(--text-dim);margin-bottom:20px;">Прочитай шаблон на каждом языке и запиши на камеру. Нажми ▶ чтобы услышать произношение. Говори чётко и с улыбкой!</p>
+      ${lines.map(l => `
+        <div class="template-line" style="display:flex;align-items:center;gap:10px;">
+          <span class="lang" style="min-width:70px;">${l.lang}:</span>
+          <span style="flex:1;">${l.text}</span>
+          <button class="phrase-play-btn" onclick="playBossLine('${l.voice}', ${JSON.stringify(l.text).replace(/"/g, '&quot;')})" title="Слушать">▶</button>
+        </div>
+      `).join('')}
     </div>
     <div class="task" style="text-align:center;">
       <h4>🎬 Ready to record?</h4>
@@ -1058,6 +1075,16 @@ function startFinalBoss() {
       <button class="btn" onclick="confirmVideo()" style="margin-top:20px;">🎥 I RECORDED MY VIDEO!</button>
     </div>
   `;
+}
+
+function playBossLine(lang, text) {
+  if (!('speechSynthesis' in window)) { alert('Speech synthesis not supported in this browser.'); return; }
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang;
+  utt.rate = 0.85;
+  utt.volume = 1;
+  speechSynthesis.speak(utt);
 }
 
 function confirmVideo() {
