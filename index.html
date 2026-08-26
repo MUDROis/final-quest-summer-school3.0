@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 The Glitch — Language Protocol Recovery | MUDRO Quest</title>
+<meta name="description" content="Финальный мультиязычный квест Летней школы МУДРО 2026">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e27;
+    --bg-2: #141937;
+    --neon-cyan: #00f0ff;
+    --neon-pink: #ff00aa;
+    --neon-green: #39ff14;
+    --neon-yellow: #fff700;
+    --text: #e8ecff;
+    --text-dim: #8892b0;
+    --card: rgba(20, 25, 55, 0.7);
+    --border: rgba(0, 240, 255, 0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.08) 0%, transparent 50%);
+  }
+  .grid-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  }
+  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px; }
+  h1, h2, h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+  .glow-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan); }
+  .glow-pink { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
+  .glow-green { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+
+  .screen { display: none; animation: fadeIn 0.6s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .intro { text-align: center; padding: 60px 20px; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .intro h1 { font-size: clamp(2rem, 6vw, 4.5rem); margin-bottom: 20px; }
+  .intro .subtitle { font-size: 1.2rem; color: var(--text-dim); max-width: 700px; margin: 0 auto 40px; line-height: 1.6; }
+  .spark-avatar {
+    width: 150px; height: 150px; margin: 0 auto 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--neon-cyan), var(--neon-pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+    animation: pulse 2s infinite, rotate 10s linear infinite;
+    box-shadow: 0 0 40px var(--neon-cyan);
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes rotate { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+
+  .input-group { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; max-width: 400px; width: 100%; margin-left: auto; margin-right: auto; }
+  input, select, textarea {
+    padding: 14px 20px; border-radius: 10px;
+    background: var(--card); border: 2px solid var(--border);
+    color: var(--text); font-size: 1rem; font-family: inherit;
+    transition: all 0.3s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,240,255,0.4); }
+
+  .btn {
+    padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem;
+    text-transform: uppercase; letter-spacing: 1px;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(0,240,255,0.4);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,240,255,0.7); }
+  .btn:active { transform: translateY(0); }
+  .btn.secondary { background: transparent; color: var(--neon-cyan); border: 2px solid var(--neon-cyan); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .hud {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .hud-left { display: flex; align-items: center; gap: 15px; }
+  .hud-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+  .hud-item { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+  .hud-item .label { color: var(--text-dim); }
+  .hud-item .value { font-family: 'Orbitron', sans-serif; font-weight: 700; }
+  .keys-display { display: flex; gap: 6px; }
+  .key-slot {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+    transition: all 0.3s;
+  }
+  .key-slot.collected { background: var(--neon-green); color: var(--bg); border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+
+  .hub-title { text-align: center; margin: 40px 0 30px; }
+  .hub-title h2 { font-size: 2rem; margin-bottom: 10px; }
+  .missions-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; margin: 30px 0;
+  }
+  .mission-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; cursor: pointer;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .mission-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(0,240,255,0.05));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .mission-card:hover { transform: translateY(-5px); border-color: var(--neon-cyan); box-shadow: 0 10px 30px rgba(0,240,255,0.2); }
+  .mission-card:hover::before { opacity: 1; }
+  .mission-card.completed { border-color: var(--neon-green); }
+  .mission-card.completed::after {
+    content: '✓'; position: absolute; top: 15px; right: 15px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--neon-green); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+  }
+  .mission-card.active-challenge { border-color: var(--neon-yellow); background: linear-gradient(135deg, rgba(255,247,0,0.1), rgba(255,0,170,0.1)); }
+  .mission-card.active-challenge::after {
+    content: '⚡'; position: absolute; top: 15px; right: 15px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--neon-yellow); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+  }
+  .mission-card.final-boss { border-color: var(--neon-pink); background: linear-gradient(135deg, rgba(255,0,170,0.15), rgba(0,240,255,0.1)); }
+  .mission-card.final-boss::after {
+    content: '🔒'; position: absolute; top: 15px; right: 15px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--neon-pink); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.9rem;
+  }
+  .mission-card.final-boss.unlocked::after { content: '🔓'; background: var(--neon-green); }
+  .phrase-section { margin-top: 20px; text-align: left; }
+  .phrase-section h4 { color: var(--neon-yellow); margin-bottom: 12px; font-size: 1rem; }
+  .phrase-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .phrase-item .phrase-text { flex: 1; font-size: 0.95rem; line-height: 1.4; }
+  .phrase-item .phrase-text .lang-label { color: var(--neon-pink); font-weight: 700; margin-right: 6px; }
+  .phrase-play-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--neon-cyan);
+    background: rgba(0,240,255,0.1); color: var(--neon-cyan); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .phrase-play-btn:hover { background: rgba(0,240,255,0.25); transform: scale(1.1); }
+  .song-lyrics {
+    background: rgba(0,0,0,0.4); border-radius: 12px; padding: 24px;
+    margin: 20px 0; text-align: left; max-height: 500px; overflow-y: auto;
+    border: 1px solid var(--border);
+  }
+  .song-lyrics .verse-label {
+    color: var(--neon-pink); font-weight: 700; font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem; margin: 16px 0 8px; text-transform: uppercase;
+  }
+  .song-lyrics .verse-label:first-child { margin-top: 0; }
+  .song-lyrics p { margin: 4px 0; line-height: 1.6; font-size: 0.95rem; }
+  .song-lyrics .translation { color: var(--text-dim); font-size: 0.85rem; font-style: italic; }
+  .song-lyrics .highlight { color: var(--neon-cyan); font-weight: 600; }
+  .audio-player {
+    display: flex; align-items: center; gap: 12px; padding: 16px;
+    background: rgba(0,240,255,0.08); border-radius: 10px;
+    border: 1px solid var(--border); margin: 16px 0;
+  }
+  .audio-player audio { flex: 1; height: 36px; }
+  .audio-player .play-label { color: var(--neon-cyan); font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+  .mission-icon { font-size: 3rem; margin-bottom: 15px; }
+  .mission-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+  .mission-card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; }
+  .mission-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    background: rgba(0,240,255,0.15); color: var(--neon-cyan);
+  }
+  .badge.lang-fr { background: rgba(0,85,164,0.3); color: #7eb8ff; }
+  .badge.lang-es { background: rgba(255,200,0,0.2); color: var(--neon-yellow); }
+  .badge.lang-de { background: rgba(255,0,170,0.2); color: var(--neon-pink); }
+  .badge.active { background: rgba(255,247,0,0.2); color: var(--neon-yellow); }
+
+  .mission-header {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 30px; margin-bottom: 20px;
+    text-align: center;
+  }
+  .mission-header h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .mission-header .brief { color: var(--text-dim); max-width: 700px; margin: 0 auto; line-height: 1.6; }
+
+  .task {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  }
+  .task h4 { font-size: 1.1rem; margin-bottom: 12px; color: var(--neon-cyan); }
+  .task p { margin-bottom: 12px; line-height: 1.6; }
+
+  .options { display: grid; gap: 10px; margin-top: 15px; }
+  .option {
+    padding: 14px 20px; border-radius: 10px;
+    background: rgba(0,240,255,0.05); border: 2px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .option:hover { border-color: var(--neon-cyan); background: rgba(0,240,255,0.1); }
+  .option.correct { border-color: var(--neon-green); background: rgba(57,255,20,0.15); }
+  .option.wrong { border-color: var(--neon-pink); background: rgba(255,0,170,0.1); }
+  .option-letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-family: 'Orbitron', sans-serif;
+  }
+
+  .input-task { display: flex; gap: 10px; flex-wrap: wrap; }
+  .input-task input { flex: 1; min-width: 200px; }
+
+  .feedback {
+    padding: 15px; border-radius: 10px; margin-top: 15px;
+    font-weight: 600; display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s; }
+  .feedback.success { background: rgba(57,255,20,0.15); color: var(--neon-green); border: 1px solid var(--neon-green); }
+  .feedback.error { background: rgba(255,0,170,0.15); color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+
+  .active-challenge-box {
+    background: linear-gradient(135deg, rgba(255,247,0,0.1), rgba(255,0,170,0.1));
+    border: 2px dashed var(--neon-yellow);
+    border-radius: 16px; padding: 30px; margin: 20px 0;
+    text-align: center;
+  }
+  .active-challenge-box h3 { color: var(--neon-yellow); font-size: 1.5rem; margin-bottom: 15px; }
+  .timer {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem; color: var(--neon-yellow);
+    text-shadow: 0 0 20px var(--neon-yellow);
+    margin: 20px 0;
+  }
+  .timer.warning { color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink); animation: blink 0.5s infinite; }
+  @keyframes blink { 50% { opacity: 0.5; } }
+
+  .challenge-instructions {
+    background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px; margin: 20px 0;
+    text-align: left;
+  }
+  .challenge-instructions ol { margin-left: 20px; line-height: 1.8; }
+  .challenge-instructions li { margin-bottom: 8px; }
+
+  .video-template {
+    background: var(--card); border: 2px solid var(--neon-cyan);
+    border-radius: 16px; padding: 30px; margin: 20px 0;
+  }
+  .video-template h3 { color: var(--neon-cyan); margin-bottom: 20px; }
+  .template-line {
+    background: rgba(0,240,255,0.05); border: 1px solid var(--border);
+    border-radius: 8px; padding: 15px; margin: 10px 0;
+    font-size: 1.1rem;
+  }
+  .template-line .lang { color: var(--neon-pink); font-weight: 700; margin-right: 10px; }
+
+  .final { text-align: center; padding: 40px 20px; }
+  .final h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 20px; }
+  .certificate {
+    max-width: 700px; margin: 30px auto; padding: 40px;
+    background: linear-gradient(135deg, #141937, #0a0e27);
+    border: 3px solid var(--neon-cyan); border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0,240,255,0.3);
+  }
+  .certificate h2 { font-size: 2rem; margin-bottom: 10px; }
+  .certificate .agent-name { font-size: 2.5rem; color: var(--neon-green); margin: 20px 0; font-family: 'Orbitron', sans-serif; }
+  #certCanvas { max-width: 100%; border-radius: 12px; margin: 20px 0; }
+
+  @media (max-width: 600px) {
+    .hud { flex-direction: column; align-items: flex-start; }
+    .mission-card { padding: 18px; }
+    .timer { font-size: 2rem; }
+  }
+
+  .confetti {
+    position: fixed; width: 10px; height: 10px;
+    pointer-events: none; z-index: 1000;
+    animation: fall 3s linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro">
+      <div class="spark-avatar">🤖</div>
+      <h1 class="glow-cyan">THE GLITCH</h1>
+      <h2 style="font-size: 1.2rem; color: var(--text-dim); margin-bottom: 20px;">Language Protocol Recovery</h2>
+      <p class="subtitle">
+        ⚠️ <strong>ALERT:</strong> SPARK — AI-ассистент школы «МУДРО» — сломался от перегрузки мультиязычными данными за 13 недель лета.
+        Языковые протоколы <span class="glow-cyan">EN</span>, <span style="color:#7eb8ff">FR</span>, <span style="color:var(--neon-yellow)">ES</span>, <span class="glow-pink">DE</span> разлетелись по виртуальным локациям.
+        <br><br>
+        🎯 Твоя миссия: пройти 12 локаций, собрать 4 языковых ключа и перезагрузить SPARK.
+      </p>
+      <div class="input-group">
+        <input type="text" id="agentName" placeholder="🆔 Введи код агента (имя)" maxlength="20">
+        <input type="number" id="agentAge" placeholder="🎂 Возраст" min="5" max="99">
+        <select id="agentMode">
+          <option value="online">🌐 Режим: ONLINE</option>
+          <option value="offline">📱 Режим: OFFLINE (QR)</option>
+        </select>
+      </div>
+      <button class="btn" onclick="startMission()">▶ НАЧАТЬ МИССИЮ</button>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hud" style="display:none;">
+    <div class="hud-left">
+      <div class="spark-avatar" style="width:40px;height:40px;font-size:1.3rem;margin:0;">🤖</div>
+      <div>
+        <div style="font-family:'Orbitron';font-weight:700;font-size:0.9rem;" id="hudAgent">AGENT</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);" id="hudMode">ONLINE</div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-item">
+        <span class="label">⚡ XP:</span>
+        <span class="value glow-cyan" id="hudXP">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="label">🔑 KEYS:</span>
+        <div class="keys-display">
+          <div class="key-slot" id="key-EN" title="English">EN</div>
+          <div class="key-slot" id="key-FR" title="Français">FR</div>
+          <div class="key-slot" id="key-ES" title="Español">ES</div>
+          <div class="key-slot" id="key-DE" title="Deutsch">DE</div>
+        </div>
+      </div>
+      <button class="btn secondary" style="padding:8px 16px;font-size:0.8rem;" onclick="showHub()">🗺 MAP</button>
+    </div>
+  </div>
+
+  <!-- HUB -->
+  <div id="screen-hub" class="screen">
+    <div class="hub-title">
+      <h2 class="glow-cyan">🗺 КАРТА МИССИЙ</h2>
+      <p style="color:var(--text-dim);">Пройди все миссии, чтобы собрать ключи и починить SPARK.</p>
+    </div>
+    <div class="missions-grid" id="missionsGrid"></div>
+  </div>
+
+  <!-- MISSION -->
+  <div id="screen-mission" class="screen">
+    <div id="missionContent"></div>
+    <div style="text-align:center; margin: 30px 0;">
+      <button class="btn secondary" onclick="showHub()">← BACK TO MAP</button>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div id="screen-final" class="screen">
+    <div class="final">
+      <div class="spark-avatar" style="animation: pulse 1s infinite;">🤖✨</div>
+      <h1 class="glow-green">SPARK REBOOTED!</h1>
+      <p style="font-size:1.2rem; max-width:700px; margin: 20px auto; line-height:1.6;">
+        🎉 Миссия выполнена! Ты собрал все 4 языковых ключа и перезагрузил SPARK.
+        <br><br>
+        <em>"Bonjour! ¡Hola! Hello! Hallo! — Thank you, Agent <span id="finalName" class="glow-cyan">[NAME]</span>.
+        You saved the Multilingual Protocol. See you in autumn!"</em>
+      </p>
+      <div class="certificate">
+        <h2 class="glow-cyan">🏆 CERTIFICATE OF COMPLETION</h2>
+        <p style="color:var(--text-dim);">This certifies that</p>
+        <div class="agent-name" id="certName">AGENT</div>
+        <p>has successfully completed</p>
+        <h3 style="margin:15px 0;font-size:1.3rem;" class="glow-pink">THE GLITCH: Language Protocol Recovery</h3>
+        <p style="color:var(--text-dim); margin-top:15px;">
+          Summer School MUDRO 2026 · 13 weeks · 12 missions · 4 languages
+        </p>
+        <p style="color:var(--neon-green);font-family:'Orbitron',sans-serif;font-weight:700;margin-top:15px;text-align:left;">
+          ⚡ <span id="certXP">0</span> XP
+        </p>
+        <canvas id="certCanvas" width="800" height="500" style="display:none;"></canvas>
+        <button class="btn" onclick="downloadCert()" style="margin-top:20px;">📥 DOWNLOAD CERTIFICATE</button>
+      </div>
+      <div style="margin-top:30px;">
+        <p style="color:var(--text-dim);">🎓 See you in autumn! Keep learning, keep hacking.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ STATE ============
+const state = {
+  agent: '',
+  age: '',
+  mode: 'online',
+  xp: 0,
+  keys: { EN: false, FR: false, ES: false, DE: false },
+  completed: []
+};
+
+// ============ MISSIONS DATA ============
+const missions = [
+  {
+    id: 'm1', icon: '🌍', title: 'Travel Hub',
+    brief: 'Транспорт и города. Вспомни, как мы планировали маршруты в июне.',
+    langs: ['EN', 'FR'],
+    tasks: [
+      { type: 'choice', q: '🚆 You are at Charles de Gaulle Airport. How do you ask for a ticket to Paris center in French?',
+        options: ['Je voudrais un billet pour Paris, s\'il vous plaît.', 'Wo ist der Zug?', '¿Cuánto cuesta?', 'I want a ticket.'], correct: 0, xp: 20 },
+      { type: 'choice', q: '🚌 The RER train takes 35 min, check-in 20 min, metro 25 min. You left at 14:10. What time do you arrive?',
+        options: ['15:10', '15:30', '15:45', '16:00'], correct: 1, xp: 30 },
+      { type: 'input', q: '✍️ Type the French phrase: "I am in Paris. I love the Eiffel Tower."',
+        answer: ['je suis a paris', "j'aime la tour eiffel", 'je suis à paris', "j'aime la tour eiffel"],
+        hint: 'Salut! Je ___ à Paris. J\'___ la Tour Eiffel!', xp: 40 }
+    ]
+  },
+  {
+    id: 'ac1', icon: '🏃', title: 'Room Explorer',
+    brief: 'ACTIVE CHALLENGE: Найди предметы в комнате и расскажи о них!',
+    langs: ['EN', 'FR', 'ES', 'DE'], type: 'active', duration: 15,
+    instructions: [
+      'Найди три предмета в комнате (ручка, книга, чашка и т.д.)',
+      'Для каждого предмета скажи на двух языках (EN + FR/ES/DE):',
+      '• Что это: "This is a pen" / "C\'est un stylo"',
+      '• Какого цвета: "It is blue" / "Il est bleu"',
+      '• Как используешь: "I write with it" / "J\'écris avec"',
+      'Покажи предметы в камеру или опиши вслух!'
+    ],
+    phrases: [
+      { lang: 'EN', text: 'This is a pen.', audio: 'audio/phrases/room-en-1.mp3' },
+      { lang: 'EN', text: 'It is blue.', audio: 'audio/phrases/room-en-2.mp3' },
+      { lang: 'EN', text: 'I write with it.', audio: 'audio/phrases/room-en-3.mp3' },
+      { lang: 'FR', text: 'C\'est un stylo.', audio: 'audio/phrases/room-fr-1.mp3' },
+      { lang: 'FR', text: 'Il est bleu.', audio: 'audio/phrases/room-fr-2.mp3' },
+      { lang: 'FR', text: 'J\'écris avec.', audio: 'audio/phrases/room-fr-3.mp3' },
+      { lang: 'ES', text: 'Es un bolígrafo.', audio: 'audio/phrases/room-es-1.mp3' },
+      { lang: 'ES', text: 'Es azul.', audio: 'audio/phrases/room-es-2.mp3' },
+      { lang: 'ES', text: 'Escribo con él.', audio: 'audio/phrases/room-es-3.mp3' },
+      { lang: 'DE', text: 'Das ist ein Stift.', audio: 'audio/phrases/room-de-1.mp3' },
+      { lang: 'DE', text: 'Er ist blau.', audio: 'audio/phrases/room-de-2.mp3' },
+      { lang: 'DE', text: 'Ich schreibe damit.', audio: 'audio/phrases/room-de-3.mp3' }
+    ], xp: 50
+  },
+  {
+    id: 'm2', icon: '🧬', title: 'Science Lab',
+    brief: 'Атомы, тело, энергия. Вспоминаем опыты лета.',
+    langs: ['EN'],
+    tasks: [
+      { type: 'choice', q: '⚛️ What is the center of an atom called?', options: ['Electron', 'Nucleus', 'Proton shell', 'Molecule'], correct: 1, xp: 20 },
+      { type: 'choice', q: '💪 Which organ pumps blood through your body?', options: ['Liver', 'Brain', 'Heart', 'Lungs'], correct: 2, xp: 20 },
+      { type: 'choice', q: '🔋 A roller coaster at the top of the hill has mostly...', options: ['Kinetic energy', 'Potential energy', 'Thermal energy', 'Sound energy'], correct: 1, xp: 30 },
+      { type: 'choice', q: '🇫🇷 Translate: "I have a headache" in French', options: ['J\'ai faim', 'J\'ai froid', 'J\'ai mal à la tête', 'J\'ai soif'], correct: 2, xp: 30 }
+    ]
+  },
+  {
+    id: 'm3', icon: '🍳', title: 'Kitchen Challenge',
+    brief: 'Еда, рецепты, вкусы. Вспомним кулинарное шоу!',
+    langs: ['EN', 'ES'],
+    tasks: [
+      { type: 'choice', q: '🍋 Why is lemon juice sour?', options: ['It has sugar', 'It contains citric acid', 'It has salt', 'It is a base'], correct: 1, xp: 20 },
+      { type: 'choice', q: '🥘 Recipe math: four pancakes need 200ml milk. How much for ten pancakes?', options: ['300ml', '400ml', '500ml', '600ml'], correct: 2, xp: 30 },
+      { type: 'choice', q: '🇪🇸 How do you say "I am hungry" in Spanish?', options: ['Tengo sed', 'Tengo hambre', 'Tengo frío', 'Tengo sueño'], correct: 1, xp: 30 },
+      { type: 'input', q: '✍️ Type in Spanish: "I like pizza very much"', answer: ['me gusta mucho la pizza', 'me gusta mucho pizza'], hint: 'Me ___ mucho la pizza', xp: 30 }
+    ]
+  },
+  {
+    id: 'ac2', icon: '🍎', title: 'Kitchen Hunt',
+    brief: 'ACTIVE CHALLENGE: Найди продукты и опиши их вкус!',
+    langs: ['EN', 'FR', 'ES', 'DE'], type: 'active', duration: 15,
+    instructions: [
+      'Найди на кухне три или четыре продукта (яблоко, хлеб, сыр и т.д.)',
+      'Для каждого продукта скажи на двух языках:',
+      '• Что это: "This is an apple" / "C\'est une pomme"',
+      '• Вкус: "It is sweet" / "Il est doux"',
+      '• Что можно приготовить: "I can make juice" / "Je peux faire du jus"',
+      'Покажи продукты в камеру!'
+    ],
+    phrases: [
+      { lang: 'EN', text: 'This is an apple.', audio: 'audio/phrases/kitchen-en-1.mp3' },
+      { lang: 'EN', text: 'It is sweet.', audio: 'audio/phrases/kitchen-en-2.mp3' },
+      { lang: 'EN', text: 'I can make juice.', audio: 'audio/phrases/kitchen-en-3.mp3' },
+      { lang: 'FR', text: 'C\'est une pomme.', audio: 'audio/phrases/kitchen-fr-1.mp3' },
+      { lang: 'FR', text: 'Elle est douce.', audio: 'audio/phrases/kitchen-fr-2.mp3' },
+      { lang: 'FR', text: 'Je peux faire du jus.', audio: 'audio/phrases/kitchen-fr-3.mp3' },
+      { lang: 'ES', text: 'Es una manzana.', audio: 'audio/phrases/kitchen-es-1.mp3' },
+      { lang: 'ES', text: 'Es dulce.', audio: 'audio/phrases/kitchen-es-2.mp3' },
+      { lang: 'ES', text: 'Puedo hacer jugo.', audio: 'audio/phrases/kitchen-es-3.mp3' },
+      { lang: 'DE', text: 'Das ist ein Apfel.', audio: 'audio/phrases/kitchen-de-1.mp3' },
+      { lang: 'DE', text: 'Er ist süß.', audio: 'audio/phrases/kitchen-de-2.mp3' },
+      { lang: 'DE', text: 'Ich kann Saft machen.', audio: 'audio/phrases/kitchen-de-3.mp3' }
+    ], xp: 50
+  },
+  {
+    id: 'm4', icon: '💰', title: 'Money Market',
+    brief: 'Деньги, проценты, скидки. Финансовая грамотность.',
+    langs: ['EN', 'DE'],
+    tasks: [
+      { type: 'choice', q: '💸 T-shirt costs €40. Discount 25%. What is the final price?', options: ['€25', '€30', '€35', '€10'], correct: 1, xp: 30 },
+      { type: 'choice', q: '🪙 Which was the FIRST form of money in history?', options: ['Paper bills', 'Gold coins', 'Shells and cattle', 'Credit cards'], correct: 2, xp: 20 },
+      { type: 'choice', q: '🇩🇪 How do you ask "How much does it cost?" in German?', options: ['Wo ist der Bahnhof?', 'Wie viel kostet das?', 'Ich möchte bitte...', 'Sprechen Sie Englisch?'], correct: 1, xp: 30 },
+      { type: 'choice', q: '📊 If you save ten percent of €200 pocket money each month, how much in six months?', options: ['€60', '€100', '€120', '€200'], correct: 2, xp: 30 }
+    ]
+  },
+  {
+    id: 'm5', icon: '🌪', title: 'Disaster Zone',
+    brief: 'Природные катаклизмы. Как выжить и что знать.',
+    langs: ['EN', 'ES'],
+    tasks: [
+      { type: 'choice', q: '🌋 At what speed can lava flow?', options: ['1 km/h', 'Up to 60 km/h', 'Speed of sound', 'It doesn\'t flow'], correct: 1, xp: 20 },
+      { type: 'choice', q: '🌊 What is the MAIN cause of a tsunami?', options: ['Strong wind', 'Undersea earthquake', 'Full moon', 'Heavy rain'], correct: 1, xp: 20 },
+      { type: 'choice', q: '🇪🇸 "Está lloviendo" means...', options: ['It is sunny', 'It is snowing', 'It is raining', 'It is windy'], correct: 2, xp: 30 },
+      { type: 'choice', q: '📈 Perseids meteor shower peaks in August. How many meteors per hour (ideal)?', options: ['Ten', 'Fifty', 'One hundred', 'One thousand'], correct: 2, xp: 30 }
+    ]
+  },
+  {
+    id: 'ac3', icon: '🌪', title: 'Disaster Drill',
+    brief: 'ACTIVE CHALLENGE: Покажи, как действовать при катастрофе!',
+    langs: ['EN', 'FR', 'ES', 'DE'], type: 'active', duration: 10,
+    instructions: [
+      'Выбери одну катастрофу: землетрясение, наводнение, пожар',
+      'Покажи пантомимой (без слов!), как действовать:',
+      '• Землетрясение: "Drop, Cover, Hold on!"',
+      '• Наводнение: "Go to high ground!"',
+      '• Пожар: "Stop, Drop, and Roll!"',
+      'Остальные угадывают, что ты показываешь!'
+    ],
+    phrases: [
+      { lang: 'EN', text: 'Earthquake! Drop, cover, and hold on!', audio: 'audio/phrases/disaster-en-1.mp3' },
+      { lang: 'EN', text: 'Fire! Stop, drop, and roll!', audio: 'audio/phrases/disaster-en-2.mp3' },
+      { lang: 'EN', text: 'Help! I need help!', audio: 'audio/phrases/disaster-en-3.mp3' },
+      { lang: 'FR', text: 'Tremblement de terre! Couvrez-vous!', audio: 'audio/phrases/disaster-fr-1.mp3' },
+      { lang: 'FR', text: 'Au feu! Couchez-vous et roulez!', audio: 'audio/phrases/disaster-fr-2.mp3' },
+      { lang: 'FR', text: 'Au secours! J\'ai besoin d\'aide!', audio: 'audio/phrases/disaster-fr-3.mp3' },
+      { lang: 'ES', text: '¡Terremoto! ¡Agáchate, cúbrete y agárrate!', audio: 'audio/phrases/disaster-es-1.mp3' },
+      { lang: 'ES', text: '¡Fuego! ¡Para, tírate y rueda!', audio: 'audio/phrases/disaster-es-2.mp3' },
+      { lang: 'ES', text: '¡Ayuda! ¡Necesito ayuda!', audio: 'audio/phrases/disaster-es-3.mp3' },
+      { lang: 'DE', text: 'Erdbeben! Ducken, schützen und festhalten!', audio: 'audio/phrases/disaster-de-1.mp3' },
+      { lang: 'DE', text: 'Feuer! Stopp, hinlegen und rollen!', audio: 'audio/phrases/disaster-de-2.mp3' },
+      { lang: 'DE', text: 'Hilfe! Ich brauche Hilfe!', audio: 'audio/phrases/disaster-de-3.mp3' }
+    ], xp: 40
+  },
+  {
+    id: 'm6', icon: '🎭', title: 'Culture Gallery',
+    brief: 'Искусство, музыка, праздники. Культурный код.',
+    langs: ['EN', 'FR', 'DE'],
+    tasks: [
+      { type: 'choice', q: '🎨 Which instrument family does the violin belong to?', options: ['Percussion', 'Woodwind', 'String', 'Brass'], correct: 2, xp: 20 },
+      { type: 'choice', q: '🎆 Diwali — the festival of lights — is celebrated in...', options: ['China', 'India', 'Mexico', 'Scotland'], correct: 1, xp: 20 },
+      { type: 'choice', q: '🇩🇪 "Frohe Weihnachten!" means...', options: ['Happy birthday', 'Merry Christmas', 'Happy New Year', 'Good luck'], correct: 1, xp: 30 },
+      { type: 'choice', q: '🇫🇷 "Je n\'aime pas le rock" means...', options: ['I love rock', 'I don\'t like rock', 'I play rock', 'Rock is great'], correct: 1, xp: 30 }
+    ]
+  },
+  {
+    id: 'm7', icon: '🚀', title: 'Space Mission',
+    brief: 'Космос, планеты, световые годы. Финальная локация.',
+    langs: ['EN'],
+    tasks: [
+      { type: 'choice', q: '🪐 Which planet is known as the "Red Planet"?', options: ['Venus', 'Mars', 'Jupiter', 'Saturn'], correct: 1, xp: 20 },
+      { type: 'choice', q: '⭐ What is a "light-year"?', options: ['Time unit', 'Distance unit', 'Speed unit', 'Brightness unit'], correct: 1, xp: 30 },
+      { type: 'choice', q: '🌞 How many inner planets does the Solar System have?', options: ['Two', 'Three', 'Four', 'Five'], correct: 2, xp: 30 },
+      { type: 'choice', q: '🔢 If a star is four light-years away, how long does its light take to reach us?', options: ['Four seconds', 'Four minutes', 'Four hours', 'Four years'], correct: 3, xp: 30 }
+    ]
+  },
+  {
+    id: 'ac4', icon: '🎤', title: 'Karaoke Battle',
+    brief: 'ACTIVE CHALLENGE: Спой песню на четырёх языках вместе с группой!',
+    langs: ['EN', 'FR', 'ES', 'DE'], type: 'active', duration: 15,
+    instructions: [
+      'Послушай песню "Four Languages, One World" целиком.',
+      'Затем спой припев вместе с группой на всех четырёх языках!',
+      'Не обязательно идеально — главное весело и с радостью!',
+      'После песни повтори ключевые фразы на каждом языке.'
+    ],
+    song: {
+      title: 'Four Languages, One World',
+      audio: 'Four Languages, One Big World.mp3',
+      verses: [
+        { label: 'Verse 1', lines: [
+          { en: 'We travel far, we explore the map,', fr: 'Nous voyageons loin, nous explorons la carte,', es: 'Viajamos lejos, exploramos el mapa,', de: 'Wir reisen weit, wir erkunden die Karte,' },
+          { en: 'Paris, Madrid — what a trip!', fr: 'Paris, Madrid — quel voyage!', es: 'París, Madrid — ¡qué viaje!', de: 'Paris, Madrid — was für eine Reise!' },
+          { en: 'Vamos a viajar — every day,', fr: 'Voyageons chaque jour —', es: 'Vamos a viajar — cada día,', de: 'Wir reisen jeden Tag —' },
+          { en: 'Wir rechnen schnell, wir sind bereit!', fr: 'Nous calculons vite, nous sommes prêts!', es: 'Contamos rápido, ¡estamos listos!', de: 'Wir rechnen schnell, wir sind bereit!' },
+          { en: 'Every word can open a door,', fr: 'Chaque mot peut ouvrir une porte,', es: 'Cada palabra puede abrir una puerta,', de: 'Jedes Wort kann eine Tür öffnen,' },
+          { en: 'There\'s a whole new world to discover more.', fr: 'Il y a tout un nouveau monde à découvrir.', es: 'Hay un mundo nuevo por descubrir.', de: 'Da ist eine ganze neue Welt zu entdecken.' }
+        ]},
+        { label: 'Chorus', lines: [
+          { en: 'Hello, Bonjour, Hola, Hallo!', fr: 'Hello, Bonjour, Hola, Hallo!', es: 'Hello, Bonjour, Hola, Hallo!', de: 'Hello, Bonjour, Hola, Hallo!' },
+          { en: 'Four languages, one big world.', fr: 'Quatre langues, un grand monde.', es: 'Cuatro idiomas, un gran mundo.', de: 'Vier Sprachen, eine große Welt.' },
+          { en: 'We learn together day by day.', fr: 'Nous apprenons ensemble jour après jour.', es: 'Aprendemos juntos día tras día.', de: 'Wir lernen Tag für Tag zusammen.' },
+          { en: 'Hand in hand we find our way,', fr: 'Main dans la main, nous trouvons notre chemin,', es: 'Mano a mano encontramos nuestro camino,', de: 'Hand in Hand finden wir unseren Weg,' },
+          { en: 'Different words, one team today.', fr: 'Des mots différents, une équipe aujourd\'hui.', es: 'Palabras diferentes, un equipo hoy.', de: 'Verschiedene Worte, ein Team heute.' }
+        ]},
+        { label: 'Verse 2', lines: [
+          { en: 'We mix the colors, we test the pH,', fr: 'Nous mélangeons les couleurs, nous testons le pH,', es: 'Mezclamos los colores, probamos el pH,', de: 'Wir mischen die Farben, wir testen den pH-Wert,' },
+          { en: 'Les étoiles brillent dans le ciel.', fr: 'Les étoiles brillent dans le ciel.', es: 'Las estrellas brillan en el cielo.', de: 'Die Sterne leuchten am Himmel.' },
+          { en: 'Tecnología, cambiamos the game,', fr: 'La technologie, nous changeons la donne,', es: 'Tecnología, cambiamos las reglas del juego,', de: 'Technologie, wir ändern das Spiel,' },
+          { en: 'Wir sind die Zukunft, wir sind bereit!', fr: 'Nous sommes l\'avenir, nous sommes prêts!', es: '¡Somos el futuro, estamos listos!', de: 'Wir sind die Zukunft, wir sind bereit!' },
+          { en: 'Every question starts a new way,', fr: 'Chaque question ouvre un nouveau chemin,', es: 'Cada pregunta abre un nuevo camino,', de: 'Jede Frage eröffnet einen neuen Weg,' },
+          { en: 'We grow a little stronger every day.', fr: 'Nous grandissons un peu plus chaque jour.', es: 'Crecemos un poco más cada día.', de: 'Wir werden jeden Tag ein wenig stärker.' }
+        ]},
+        { label: 'Bridge', lines: [
+          { en: 'One, deux, tres, vier, count it up together,', fr: 'Un, deux, trois, quatre, comptons ensemble,', es: 'Un, dos, tres, cuatro, contemos juntos,', de: 'Eins, zwei, drei, vier, zählen wir zusammen,' },
+          { en: 'Side by side we can go farther.', fr: 'Côte à côte, nous pouvons aller plus loin.', es: 'Lado a lado podemos llegar más lejos.', de: 'Seite an Seite können wir weiter kommen.' },
+          { en: 'One, deux, tres, vier, voices rising higher,', fr: 'Un, deux, trois, quatre, les voix montent,', es: 'Un, dos, tres, cuatro, las voces suben,', de: 'Eins, zwei, drei, vier, die Stimmen werden lauter,' },
+          { en: 'Learning lights a joyful fire.', fr: 'Apprendre allume un feu joyeux.', es: 'Aprender enciende un fuego alegre.', de: 'Lernen entzündet ein fröhliches Feuer.' }
+        ]},
+        { label: 'Final Chorus', lines: [
+          { en: 'Hello, Bonjour, Hola, Hallo!', fr: 'Hello, Bonjour, Hola, Hallo!', es: 'Hello, Bonjour, Hola, Hallo!', de: 'Hello, Bonjour, Hola, Hallo!' },
+          { en: 'Four languages, one big world.', fr: 'Quatre langues, un grand monde.', es: 'Cuatro idiomas, un gran mundo.', de: 'Vier Sprachen, eine große Welt.' },
+          { en: 'We learn together day by day.', fr: 'Nous apprenons ensemble jour après jour.', es: 'Aprendemos juntos día tras día.', de: 'Wir lernen Tag für Tag zusammen.' },
+          { en: 'Hand in hand we find our way,', fr: 'Main dans la main, nous trouvons notre chemin,', es: 'Mano a mano encontramos nuestro camino,', de: 'Hand in Hand finden wir unseren Weg,' },
+          { en: 'Different words, one team today.', fr: 'Des mots différents, une équipe aujourd\'hui.', es: 'Palabras diferentes, un equipo hoy.', de: 'Verschiedene Worte, ein Team heute.' },
+          { en: 'One big world!', fr: 'Un grand monde!', es: '¡Un gran mundo!', de: 'Eine große Welt!' }
+        ]}
+      ]
+    },
+    phrases: [
+      { lang: 'EN', text: 'Hello, my name is...', audio: 'audio/phrases/karaoke-en-1.mp3' },
+      { lang: 'EN', text: 'Four languages, one big world.', audio: 'audio/phrases/karaoke-en-2.mp3' },
+      { lang: 'EN', text: 'We learn together day by day.', audio: 'audio/phrases/karaoke-en-3.mp3' },
+      { lang: 'FR', text: 'Bonjour, je m\'appelle...', audio: 'audio/phrases/karaoke-fr-1.mp3' },
+      { lang: 'FR', text: 'Quatre langues, un grand monde.', audio: 'audio/phrases/karaoke-fr-2.mp3' },
+      { lang: 'FR', text: 'Nous apprenons ensemble jour après jour.', audio: 'audio/phrases/karaoke-fr-3.mp3' },
+      { lang: 'ES', text: 'Hola, me llamo...', audio: 'audio/phrases/karaoke-es-1.mp3' },
+      { lang: 'ES', text: 'Cuatro idiomas, un gran mundo.', audio: 'audio/phrases/karaoke-es-2.mp3' },
+      { lang: 'ES', text: 'Aprendemos juntos día tras día.', audio: 'audio/phrases/karaoke-es-3.mp3' },
+      { lang: 'DE', text: 'Hallo, ich heiße...', audio: 'audio/phrases/karaoke-de-1.mp3' },
+      { lang: 'DE', text: 'Vier Sprachen, eine große Welt.', audio: 'audio/phrases/karaoke-de-2.mp3' },
+      { lang: 'DE', text: 'Wir lernen Tag für Tag zusammen.', audio: 'audio/phrases/karaoke-de-3.mp3' }
+    ], xp: 50
+  },
+  {
+    id: 'finalBoss', icon: '🎥', title: 'FINAL BOSS: Video Reboot',
+    brief: 'Запиши видео-приветствие на четырёх языках, чтобы перезагрузить SPARK!',
+    langs: ['EN', 'FR', 'ES', 'DE'], type: 'final'
+  }
+];
+
+// ============ CORE FUNCTIONS ============
+function startMission() {
+  const name = document.getElementById('agentName').value.trim();
+  const age = document.getElementById('agentAge').value;
+  if (!name) { alert('⚠️ Введи код агента!'); return; }
+  if (!age) { alert('⚠️ Введи возраст!'); return; }
+  state.agent = name.toUpperCase();
+  state.age = age;
+  state.mode = document.getElementById('agentMode').value;
+  document.getElementById('hudAgent').textContent = 'AGENT ' + state.agent;
+  document.getElementById('hudMode').textContent = state.mode === 'online' ? '🌐 ONLINE' : '📱 OFFLINE';
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('hud').style.display = 'flex';
+  showHub();
+}
+
+function showHub() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-hub').classList.add('active');
+  renderHub();
+}
+
+function renderHub() {
+  const grid = document.getElementById('missionsGrid');
+  grid.innerHTML = missions.map(m => {
+    const done = state.completed.includes(m.id);
+    const isActive = m.type === 'active';
+    const isFinal = m.type === 'final';
+    const allKeys = Object.values(state.keys).every(v => v);
+    const canStart = isFinal ? (done || allKeys) : true;
+    const cardClass = isFinal ? 'final-boss' : (isActive ? 'active-challenge' : '');
+    const unlockedClass = isFinal && allKeys ? 'unlocked' : '';
+    return `
+      <div class="mission-card ${done ? 'completed' : ''} ${cardClass} ${unlockedClass}" onclick="openMission('${m.id}')" ${!canStart && !done ? 'style="opacity:0.5;cursor:not-allowed;"' : ''}>
+        <div class="mission-icon">${m.icon}</div>
+        <h3>${m.title}</h3>
+        <p>${m.brief}</p>
+        <div class="mission-meta">
+          ${m.langs.map(l => `<span class="badge lang-${l.toLowerCase()}">${l}</span>`).join('')}
+          ${isActive ? `<span class="badge active">⚡ ACTIVE</span>` : ''}
+          ${m.tasks ? `<span class="badge">${m.tasks.length} tasks</span>` : ''}
+          ${isFinal && !allKeys && !done ? `<span class="badge" style="background:rgba(255,0,170,0.2);color:var(--neon-pink);">🔒 LOCKED</span>` : ''}
+          ${done ? `<span class="badge" style="background:rgba(57,255,20,0.2);color:var(--neon-green);">✓ DONE</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openMission(id) {
+  const m = missions.find(x => x.id === id);
+  if (!m) return;
+  if (m.type === 'final') {
+    const allKeys = Object.values(state.keys).every(v => v);
+    if (!allKeys) { alert('⚠️ Собери все 4 ключа!'); return; }
+    if (state.completed.includes(id)) {
+      if (!confirm('⚠️ Миссия уже пройдена. Пройти заново?')) return;
+    }
+    startFinalBoss();
+    return;
+  }
+  if (state.completed.includes(id)) {
+    if (!confirm('⚠️ Миссия уже пройдена. Пройти заново?')) return;
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-mission').classList.add('active');
+  if (m.type === 'active') renderActiveChallenge(m);
+  else renderMission(m);
+}
+
+let currentMission = null;
+let currentTaskIdx = 0;
+let missionXP = 0;
+
+function renderMission(m) {
+  currentMission = m;
+  currentTaskIdx = 0;
+  missionXP = 0;
+  const container = document.getElementById('missionContent');
+  container.innerHTML = `
+    <div class="mission-header">
+      <div style="font-size:4rem;">${m.icon}</div>
+      <h2 class="glow-cyan">${m.title}</h2>
+      <p class="brief">${m.brief}</p>
+      <div style="margin-top:15px;">
+        ${m.langs.map(l => `<span class="badge lang-${l.toLowerCase()}">${l}</span>`).join(' ')}
+      </div>
+    </div>
+    <div id="taskArea"></div>
+  `;
+  renderTask();
+}
+
+function renderTask() {
+  const m = currentMission;
+  if (currentTaskIdx >= m.tasks.length) { completeMission(); return; }
+  const t = m.tasks[currentTaskIdx];
+  const area = document.getElementById('taskArea');
+  let html = `<div class="task"><h4>🎯 Task ${currentTaskIdx + 1} / ${m.tasks.length}</h4><p>${t.q}</p>`;
+
+  if (t.type === 'choice') {
+    html += `<div class="options">`;
+    t.options.forEach((opt, i) => {
+      const letters = ['A', 'B', 'C', 'D'];
+      html += `<div class="option" onclick="checkChoice(${i}, ${t.correct}, ${t.xp})">
+        <div class="option-letter">${letters[i]}</div>
+        <div>${opt}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  } else if (t.type === 'input') {
+    html += `
+      <p style="color:var(--text-dim);font-size:0.9rem;">💡 Hint: ${t.hint || ''}</p>
+      <div class="input-task">
+        <input type="text" id="taskInput" placeholder="Your answer..." autocomplete="off">
+        <button class="btn" onclick="checkInput()">CHECK</button>
+      </div>
+    `;
+  }
+  html += `<div class="feedback" id="feedback"></div></div>`;
+  area.innerHTML = html;
+
+  if (t.type === 'input') {
+    setTimeout(() => {
+      const inp = document.getElementById('taskInput');
+      if (inp) inp.focus();
+    }, 100);
+  }
+}
+
+function checkChoice(picked, correct, xp) {
+  const options = document.querySelectorAll('.option');
+  options.forEach(o => o.style.pointerEvents = 'none');
+  options[correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  if (picked === correct) {
+    addXP(xp);
+    fb.className = 'feedback success show';
+    fb.textContent = `✅ Correct! +${xp} XP`;
+  } else {
+    options[picked].classList.add('wrong');
+    fb.className = 'feedback error show';
+    fb.textContent = `❌ Not quite. The answer was: ${currentMission.tasks[currentTaskIdx].options[correct]}`;
+  }
+  setTimeout(() => { currentTaskIdx++; renderTask(); }, 1800);
+}
+
+function checkInput() {
+  const t = currentMission.tasks[currentTaskIdx];
+  const val = document.getElementById('taskInput').value.trim().toLowerCase();
+  const fb = document.getElementById('feedback');
+  const isCorrect = t.answer.some(a => val.includes(a.toLowerCase()) || a.toLowerCase().includes(val));
+  if (isCorrect && val.length > 3) {
+    addXP(t.xp);
+    fb.className = 'feedback success show';
+    fb.textContent = `✅ Excellent! +${t.xp} XP`;
+  } else {
+    fb.className = 'feedback error show';
+    fb.textContent = `❌ Try again! Hint: ${t.hint || ''}`;
+    return;
+  }
+  setTimeout(() => { currentTaskIdx++; renderTask(); }, 1800);
+}
+
+function completeMission() {
+  if (!state.completed.includes(currentMission.id)) {
+    state.completed.push(currentMission.id);
+  }
+  checkGroupKeys();
+  const area = document.getElementById('taskArea');
+  area.innerHTML = `
+    <div class="task" style="text-align:center;">
+      <div style="font-size:4rem;">🎉</div>
+      <h3 class="glow-green">MISSION COMPLETE!</h3>
+      <p style="margin:15px 0;">You earned <strong class="glow-cyan">${missionXP} XP</strong> in this mission.</p>
+      <button class="btn" onclick="showHub()" style="margin-top:20px;">← BACK TO MAP</button>
+    </div>
+  `;
+}
+
+const keyGroups = [
+  { key: 'EN', missionIds: ['m1', 'ac1', 'm2'] },
+  { key: 'FR', missionIds: ['m3', 'ac2', 'm4'] },
+  { key: 'ES', missionIds: ['m5', 'ac3', 'm6'] },
+  { key: 'DE', missionIds: ['m7', 'ac4', 'finalBoss'] }
+];
+
+function checkGroupKeys() {
+  keyGroups.forEach(group => {
+    if (state.keys[group.key]) return;
+    const completedInGroup = group.missionIds.filter(id => state.completed.includes(id)).length;
+    if (completedInGroup >= 2) {
+      state.keys[group.key] = true;
+      const el = document.getElementById('key-' + group.key);
+      if (el) el.classList.add('collected');
+      launchConfetti();
+      setTimeout(() => alert(`🔑 KEY ACQUIRED: ${group.key}!`), 500);
+    }
+  });
+}
+
+// ============ ACTIVE CHALLENGES ============
+let timerInterval;
+let timeLeft;
+
+function renderActiveChallenge(m) {
+  currentMission = m;
+  missionXP = 0;
+  const isKaraoke = m.song != null;
+  const container = document.getElementById('missionContent');
+
+  let songHTML = '';
+  if (isKaraoke && m.song) {
+    const s = m.song;
+    songHTML = `
+      <div class="audio-player">
+        <span class="play-label">🎵 Listen to the song:</span>
+        <audio controls src="${s.audio}" style="flex:1;"></audio>
+      </div>
+      <div class="song-lyrics">
+        <h4 style="color:var(--neon-cyan);margin-bottom:16px;text-align:center;">🎤 ${s.title}</h4>
+        ${s.verses.map(v => `
+          <div class="verse-label">${v.label}</div>
+          ${v.lines.map(line => `
+            <p><span class="highlight">${line.en}</span></p>
+            <p class="translation">🇫🇷 ${line.fr}</p>
+            <p class="translation">🇪🇸 ${line.es}</p>
+            <p class="translation">🇩🇪 ${line.de}</p>
+          `).join('')}
+        `).join('')}
+      </div>
+    `;
+  }
+
+  let phrasesHTML = '';
+  if (m.phrases && m.phrases.length > 0) {
+    const langs = ['EN', 'FR', 'ES', 'DE'];
+    phrasesHTML = `
+      <div class="phrase-section">
+        <h4>🗣️ Phrase Templates — Repeat after the audio:</h4>
+        ${langs.map(lang => {
+          const langPhrases = m.phrases.filter(p => p.lang === lang);
+          if (langPhrases.length === 0) return '';
+          return `
+            <div style="margin-bottom:16px;">
+              <div style="color:var(--neon-cyan);font-weight:700;font-size:0.9rem;margin-bottom:8px;">
+                ${lang === 'EN' ? '🇬🇧' : lang === 'FR' ? '🇫🇷' : lang === 'ES' ? '🇪🇸' : '🇩🇪'} ${lang === 'EN' ? 'English' : lang === 'FR' ? 'Français' : lang === 'ES' ? 'Español' : 'Deutsch'}
+              </div>
+              ${langPhrases.map(p => `
+                <div class="phrase-item">
+                  <div class="phrase-text"><span class="lang-label">${lang}:</span> ${p.text}</div>
+                  <button class="phrase-play-btn" onclick="playPhrase('${p.audio}')" title="Play audio">▶</button>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="mission-header">
+      <div style="font-size:4rem;">${m.icon}</div>
+      <h2 class="glow-cyan">${m.title}</h2>
+      <p class="brief">${m.brief}</p>
+      <div style="margin-top:15px;">
+        ${m.langs.map(l => `<span class="badge lang-${l.toLowerCase()}">${l}</span>`).join(' ')}
+        <span class="badge active">⚡ ACTIVE CHALLENGE</span>
+      </div>
+    </div>
+    ${songHTML}
+    ${phrasesHTML}
+    <div class="active-challenge-box">
+      <h3>⚡ TIME TO MOVE!</h3>
+      <div class="timer" id="timer">${m.duration}:00</div>
+      <div class="challenge-instructions">
+        <h4 style="color:var(--neon-yellow);margin-bottom:10px;">📋 Instructions:</h4>
+        <ol>
+          ${m.instructions.map(i => `<li>${i}</li>`).join('')}
+        </ol>
+      </div>
+      <button class="btn" id="startTimerBtn" onclick="startTimer(${m.duration})">▶ START TIMER</button>
+      <button class="btn secondary" id="completeBtn" onclick="completeActiveChallenge()" style="display:none;margin-top:10px;">✓ COMPLETE CHALLENGE</button>
+    </div>
+  `;
+}
+
+function playPhrase(audioSrc) {
+  const audio = new Audio(audioSrc);
+  audio.play().catch(() => {});
+}
+
+function startTimer(minutes) {
+  timeLeft = minutes * 60;
+  document.getElementById('startTimerBtn').style.display = 'none';
+  document.getElementById('completeBtn').style.display = 'inline-block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = '00:00';
+      document.getElementById('timer').classList.add('warning');
+      setTimeout(() => completeActiveChallenge(), 1000);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const timerEl = document.getElementById('timer');
+  if (timerEl) {
+    timerEl.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    if (timeLeft <= 30) timerEl.classList.add('warning');
+  }
+}
+
+function completeActiveChallenge() {
+  if (timerInterval) clearInterval(timerInterval);
+  if (!state.completed.includes(currentMission.id)) {
+    state.completed.push(currentMission.id);
+    addXP(currentMission.xp);
+    launchConfetti();
+  }
+  checkGroupKeys();
+  const container = document.getElementById('missionContent');
+  const box = container.querySelector('.active-challenge-box');
+  if (box) {
+    box.innerHTML = `
+      <div style="font-size:4rem;">🎉</div>
+      <h3 class="glow-green">CHALLENGE COMPLETE!</h3>
+      <p style="margin:15px 0;">You earned <strong class="glow-cyan">${currentMission.xp} XP</strong>!</p>
+      <button class="btn" onclick="showHub()" style="margin-top:20px;">← BACK TO MAP</button>
+    `;
+  }
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  missionXP += amount;
+  document.getElementById('hudXP').textContent = state.xp;
+}
+
+// ============ FINAL BOSS ============
+function startFinalBoss() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-mission').classList.add('active');
+  const container = document.getElementById('missionContent');
+  container.innerHTML = `
+    <div class="mission-header">
+      <div style="font-size:5rem;">🎥🤖</div>
+      <h2 class="glow-pink">FINAL BOSS: Video Reboot</h2>
+      <p class="brief">Запиши видео-приветствие на четырёх языках, чтобы перезагрузить SPARK!</p>
+    </div>
+    <div class="video-template">
+      <h3>📹 YOUR VIDEO SCRIPT</h3>
+      <p style="color:var(--text-dim);margin-bottom:20px;">Прочитай шаблон на каждом языке и запиши на камеру. Говори чётко и с улыбкой!</p>
+      
+      <div class="template-line">
+        <span class="lang">🇬🇧 EN:</span> Hello! My name is <strong>${state.agent}</strong>. I am <strong>${state.age}</strong> years old. I live in Russia. I speak four languages!
+      </div>
+      <div class="template-line">
+        <span class="lang">🇫🇷 FR:</span> Bonjour! Je m'appelle <strong>${state.agent}</strong>. J'ai <strong>${state.age}</strong> ans. J'habite en Russie. Je parle quatre langues!
+      </div>
+      <div class="template-line">
+        <span class="lang">🇪🇸 ES:</span> ¡Hola! Me llamo <strong>${state.agent}</strong>. Tengo <strong>${state.age}</strong> años. Vivo en Rusia. ¡Hablo cuatro idiomas!
+      </div>
+      <div class="template-line">
+        <span class="lang">🇩🇪 DE:</span> Hallo! Ich heiße <strong>${state.agent}</strong>. Ich bin <strong>${state.age}</strong> Jahre alt. Ich wohne in Russland. Ich spreche vier Sprachen!
+      </div>
+    </div>
+    <div class="task" style="text-align:center;">
+      <h4>🎬 Ready to record?</h4>
+      <p>Возьми телефон, встань перед камерой и запиши видео по шаблону. Когда будешь готов — нажми кнопку!</p>
+      <button class="btn" onclick="confirmVideo()" style="margin-top:20px;">🎥 I RECORDED MY VIDEO!</button>
+    </div>
+  `;
+}
+
+function confirmVideo() {
+  if (!confirm('🎬 Ты уверен, что записал видео на четырёх языках?')) return;
+  if (!state.completed.includes('finalBoss')) {
+    state.completed.push('finalBoss');
+  }
+  checkGroupKeys();
+  launchConfetti();
+  setTimeout(() => showFinal(), 1500);
+}
+
+function showFinal() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('screen-final').classList.add('active');
+  document.getElementById('finalName').textContent = state.agent;
+  document.getElementById('certName').textContent = state.agent;
+  document.getElementById('certXP').textContent = state.xp;
+  generateCertificate();
+  launchConfetti();
+  setTimeout(launchConfetti, 500);
+  setTimeout(launchConfetti, 1000);
+}
+
+// ============ CERTIFICATE ============
+function generateCertificate() {
+  const canvas = document.getElementById('certCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#0a0e27');
+  grad.addColorStop(1, '#141937');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(0,240,255,0.1)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
+  for (let i = 0; i < H; i += 40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
+
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 4;
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 20;
+  ctx.strokeRect(20, 20, W - 40, H - 40);
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#00f0ff';
+  ctx.font = 'bold 36px Orbitron, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('CERTIFICATE OF COMPLETION', W/2, 100);
+
+  ctx.fillStyle = '#8892b0';
+  ctx.font = '18px Inter, sans-serif';
+  ctx.fillText('This certifies that', W/2, 150);
+
+  ctx.fillStyle = '#39ff14';
+  ctx.font = 'bold 56px Orbitron, sans-serif';
+  ctx.shadowColor = '#39ff14';
+  ctx.shadowBlur = 15;
+  ctx.fillText(state.agent, W/2, 230);
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#ff00aa';
+  ctx.font = 'bold 24px Orbitron, sans-serif';
+  ctx.fillText('THE GLITCH: Language Protocol Recovery', W/2, 290);
+
+  ctx.fillStyle = '#e8ecff';
+  ctx.font = '16px Inter, sans-serif';
+  ctx.fillText('Summer School MUDRO 2026 · 13 weeks · 12 missions · 4 languages', W/2, 340);
+
+  ctx.fillStyle = '#8892b0';
+  ctx.font = '14px Inter, sans-serif';
+  ctx.fillText('Language Keys Collected:', W/2, 390);
+  const keys = ['EN', 'FR', 'ES', 'DE'];
+  const colors = ['#00f0ff', '#7eb8ff', '#fff700', '#ff00aa'];
+  keys.forEach((k, i) => {
+    ctx.fillStyle = colors[i];
+    ctx.font = 'bold 22px Orbitron, sans-serif';
+    ctx.fillText('🔑 ' + k, W/2 - 150 + i * 100, 430);
+  });
+
+  ctx.fillStyle = '#8892b0';
+  ctx.font = '14px Inter, sans-serif';
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  ctx.fillText('Issued: ' + date, W/2, 475);
+
+  ctx.fillStyle = '#39ff14';
+  ctx.font = 'bold 16px Orbitron, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('⚡ ' + state.xp + ' XP', 30, H - 30);
+  ctx.textAlign = 'center';
+
+  canvas.style.display = 'block';
+}
+
+function downloadCert() {
+  const canvas = document.getElementById('certCanvas');
+  const link = document.createElement('a');
+  link.download = `MUDRO_Certificate_${state.agent}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// ============ CONFETTI ============
+function launchConfetti() {
+  const colors = ['#00f0ff', '#ff00aa', '#39ff14', '#fff700'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+// Enter key
+document.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('agentName') === document.activeElement) startMission();
+    if (document.getElementById('taskInput') === document.activeElement) checkInput();
+  }
+});
+</script>
+</body>
+</html>
