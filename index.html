@@ -847,14 +847,14 @@ const keyGroups = [
   { key: 'EN', missionIds: ['m1', 'ac1', 'm2'] },
   { key: 'FR', missionIds: ['m3', 'ac2', 'm4'] },
   { key: 'ES', missionIds: ['m5', 'ac3', 'm6'] },
-  { key: 'DE', missionIds: ['m7', 'ac4', 'finalBoss'] }
+  { key: 'DE', missionIds: ['m7', 'ac4'] }
 ];
 
 function checkGroupKeys() {
   keyGroups.forEach(group => {
     if (state.keys[group.key]) return;
     const completedInGroup = group.missionIds.filter(id => state.completed.includes(id)).length;
-    if (completedInGroup >= 3) {
+    if (completedInGroup >= group.missionIds.length) {
       state.keys[group.key] = true;
       const el = document.getElementById('key-' + group.key);
       if (el) el.classList.add('collected');
