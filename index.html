@@ -180,6 +180,15 @@
   .song-lyrics p { margin: 4px 0; line-height: 1.6; font-size: 0.95rem; }
   .song-lyrics .translation { color: var(--text-dim); font-size: 0.85rem; font-style: italic; }
   .song-lyrics .highlight { color: var(--neon-cyan); font-weight: 600; }
+  .song-line {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 8px; margin-bottom: 6px;
+    background: rgba(0,240,255,0.04); border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .song-line:hover { border-color: var(--border); background: rgba(0,240,255,0.08); }
+  .song-line-en { color: var(--neon-cyan); font-weight: 600; font-size: 0.95rem; flex: 1; }
+  .song-line-ru { color: var(--text-dim); font-size: 0.85rem; font-style: italic; flex: 1; }
   .audio-player {
     display: flex; align-items: center; gap: 12px; padding: 16px;
     background: rgba(0,240,255,0.08); border-radius: 10px;
@@ -594,65 +603,57 @@ const missions = [
       'Послушай песню "Four Languages, One World" целиком.',
       'Затем спой припев вместе с группой на всех четырёх языках!',
       'Не обязательно идеально — главное весело и с радостью!',
-      'После песни повтори ключевые фразы на каждом языке.'
+      'Нажимай на кнопку ▶ рядом со строкой, чтобы услышать иностранные слова.'
     ],
     song: {
       title: 'Four Languages, One World',
       audio: 'Four Languages, One Big World.mp3',
       verses: [
-        { label: 'Verse 1', lines: [
-          { en: 'We travel far, we explore the map,', fr: 'Nous voyageons loin, nous explorons la carte,', es: 'Viajamos lejos, exploramos el mapa,', de: 'Wir reisen weit, wir erkunden die Karte,' },
-          { en: 'Paris, Madrid — what a trip!', fr: 'Paris, Madrid — quel voyage!', es: 'París, Madrid — ¡qué viaje!', de: 'Paris, Madrid — was für eine Reise!' },
-          { en: 'Vamos a viajar — every day,', fr: 'Voyageons chaque jour —', es: 'Vamos a viajar — cada día,', de: 'Wir reisen jeden Tag —' },
-          { en: 'Wir rechnen schnell, wir sind bereit!', fr: 'Nous calculons vite, nous sommes prêts!', es: 'Contamos rápido, ¡estamos listos!', de: 'Wir rechnen schnell, wir sind bereit!' },
-          { en: 'Every word can open a door,', fr: 'Chaque mot peut ouvrir une porte,', es: 'Cada palabra puede abrir una puerta,', de: 'Jedes Wort kann eine Tür öffnen,' },
-          { en: 'There\'s a whole new world to discover more.', fr: 'Il y a tout un nouveau monde à découvrir.', es: 'Hay un mundo nuevo por descubrir.', de: 'Da ist eine ganze neue Welt zu entdecken.' }
+        { label: 'Куплет 1: Путешествие начинается', lines: [
+          { en: 'We travel far, we explore the map,', ru: 'Мы путешествуем далеко, мы исследуем карту,', segs: [{t:'We travel far, we explore the map,',l:'en'}] },
+          { en: 'Paris, Madrid — what a trip!', ru: 'Париж, Мадрид — какое путешествие!', segs: [{t:'Paris',l:'fr'},{t:'Madrid',l:'es'},{t:'what a trip',l:'en'}] },
+          { en: 'Vamos a viajar — every day,', ru: 'Давай путешествовать — каждый день,', segs: [{t:'Vamos a viajar',l:'es'},{t:'every day',l:'en'}] },
+          { en: 'Wir rechnen schnell, wir sind bereit!', ru: 'Мы считаем быстро, мы готовы!', segs: [{t:'Wir rechnen schnell, wir sind bereit',l:'de'}] },
+          { en: 'Every word can open a door,', ru: 'Каждое слово может открыть дверь,', segs: [{t:'Every word can open a door',l:'en'}] },
+          { en: "There's a whole new world to discover more.", ru: 'Есть целый новый мир, чтобы открыть ещё больше.', segs: [{t:"There's a whole new world to discover more",l:'en'}] }
         ]},
-        { label: 'Chorus', lines: [
-          { en: 'Hello, Bonjour, Hola, Hallo!', fr: 'Hello, Bonjour, Hola, Hallo!', es: 'Hello, Bonjour, Hola, Hallo!', de: 'Hello, Bonjour, Hola, Hallo!' },
-          { en: 'Four languages, one big world.', fr: 'Quatre langues, un grand monde.', es: 'Cuatro idiomas, un gran mundo.', de: 'Vier Sprachen, eine große Welt.' },
-          { en: 'We learn together day by day.', fr: 'Nous apprenons ensemble jour après jour.', es: 'Aprendemos juntos día tras día.', de: 'Wir lernen Tag für Tag zusammen.' },
-          { en: 'Hand in hand we find our way,', fr: 'Main dans la main, nous trouvons notre chemin,', es: 'Mano a mano encontramos nuestro camino,', de: 'Hand in Hand finden wir unseren Weg,' },
-          { en: 'Different words, one team today.', fr: 'Des mots différents, une équipe aujourd\'hui.', es: 'Palabras diferentes, un equipo hoy.', de: 'Verschiedene Worte, ein Team heute.' }
+        { label: 'Припев', lines: [
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'Four languages, one big world.', ru: 'Четыре языка, один большой мир.', segs: [{t:'Four languages, one big world',l:'en'}] },
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'We learn together day by day.', ru: 'Мы учимся вместе день за днём.', segs: [{t:'We learn together day by day',l:'en'}] },
+          { en: 'Hand in hand we find our way,', ru: 'Рука об руку мы находим свой путь,', segs: [{t:'Hand in hand we find our way',l:'en'}] },
+          { en: 'Different words, one team today.', ru: 'Разные слова, одна команда сегодня.', segs: [{t:'Different words, one team today',l:'en'}] },
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'Four languages, one big world.', ru: 'Четыре языка, один большой мир.', segs: [{t:'Four languages, one big world',l:'en'}] }
         ]},
-        { label: 'Verse 2', lines: [
-          { en: 'We mix the colors, we test the pH,', fr: 'Nous mélangeons les couleurs, nous testons le pH,', es: 'Mezclamos los colores, probamos el pH,', de: 'Wir mischen die Farben, wir testen den pH-Wert,' },
-          { en: 'Les étoiles brillent dans le ciel.', fr: 'Les étoiles brillent dans le ciel.', es: 'Las estrellas brillan en el cielo.', de: 'Die Sterne leuchten am Himmel.' },
-          { en: 'Tecnología, cambiamos the game,', fr: 'La technologie, nous changeons la donne,', es: 'Tecnología, cambiamos las reglas del juego,', de: 'Technologie, wir ändern das Spiel,' },
-          { en: 'Wir sind die Zukunft, wir sind bereit!', fr: 'Nous sommes l\'avenir, nous sommes prêts!', es: '¡Somos el futuro, estamos listos!', de: 'Wir sind die Zukunft, wir sind bereit!' },
-          { en: 'Every question starts a new way,', fr: 'Chaque question ouvre un nouveau chemin,', es: 'Cada pregunta abre un nuevo camino,', de: 'Jede Frage eröffnet einen neuen Weg,' },
-          { en: 'We grow a little stronger every day.', fr: 'Nous grandissons un peu plus chaque jour.', es: 'Crecemos un poco más cada día.', de: 'Wir werden jeden Tag ein wenig stärker.' }
+        { label: 'Куплет 2: Наука и Творчество (STEAM)', lines: [
+          { en: 'We mix the colors, we test the pH,', ru: 'Мы смешиваем цвета, мы проверяем pH,', segs: [{t:'We mix the colors, we test the pH',l:'en'}] },
+          { en: 'Les étoiles brillent dans le ciel.', ru: 'Звёзды сияют в небе.', segs: [{t:'Les étoiles brillent dans le ciel',l:'fr'}] },
+          { en: 'Tecnología, cambiamos the game,', ru: 'Технологии, мы меняем правила игры,', segs: [{t:'Tecnología, cambiamos',l:'es'},{t:'the game',l:'en'}] },
+          { en: 'Wir sind die Zukunft, wir sind bereit!', ru: 'Мы — будущее, мы готовы!', segs: [{t:'Wir sind die Zukunft, wir sind bereit',l:'de'}] },
+          { en: 'Every question starts a new way,', ru: 'Каждый вопрос начинает новый путь,', segs: [{t:'Every question starts a new way',l:'en'}] },
+          { en: 'We grow a little stronger every day.', ru: 'Мы становимся немного сильнее каждый день.', segs: [{t:'We grow a little stronger every day',l:'en'}] }
         ]},
-        { label: 'Bridge', lines: [
-          { en: 'One, deux, tres, vier, count it up together,', fr: 'Un, deux, trois, quatre, comptons ensemble,', es: 'Un, dos, tres, cuatro, contemos juntos,', de: 'Eins, zwei, drei, vier, zählen wir zusammen,' },
-          { en: 'Side by side we can go farther.', fr: 'Côte à côte, nous pouvons aller plus loin.', es: 'Lado a lado podemos llegar más lejos.', de: 'Seite an Seite können wir weiter kommen.' },
-          { en: 'One, deux, tres, vier, voices rising higher,', fr: 'Un, deux, trois, quatre, les voix montent,', es: 'Un, dos, tres, cuatro, las voces suben,', de: 'Eins, zwei, drei, vier, die Stimmen werden lauter,' },
-          { en: 'Learning lights a joyful fire.', fr: 'Apprendre allume un feu joyeux.', es: 'Aprender enciende un fuego alegre.', de: 'Lernen entzündet ein fröhliches Feuer.' }
+        { label: 'Бридж: Мост единства', lines: [
+          { en: 'One, deux, tres, vier, count it up together,', ru: 'Раз, два, три, четыре, считаем это вместе,', segs: [{t:'One',l:'en'},{t:'deux',l:'fr'},{t:'tres',l:'es'},{t:'vier',l:'de'},{t:'count it up together',l:'en'}] },
+          { en: 'Side by side we can go farther.', ru: 'Бок о бок мы можем идти дальше.', segs: [{t:'Side by side we can go farther',l:'en'}] },
+          { en: 'One, deux, tres, vier, voices rising higher,', ru: 'Раз, два, три, четыре, голоса становятся выше,', segs: [{t:'One',l:'en'},{t:'deux',l:'fr'},{t:'tres',l:'es'},{t:'vier',l:'de'},{t:'voices rising higher',l:'en'}] },
+          { en: 'Learning lights a joyful fire.', ru: 'Учение зажигает радостный огонь.', segs: [{t:'Learning lights a joyful fire',l:'en'}] }
         ]},
-        { label: 'Final Chorus', lines: [
-          { en: 'Hello, Bonjour, Hola, Hallo!', fr: 'Hello, Bonjour, Hola, Hallo!', es: 'Hello, Bonjour, Hola, Hallo!', de: 'Hello, Bonjour, Hola, Hallo!' },
-          { en: 'Four languages, one big world.', fr: 'Quatre langues, un grand monde.', es: 'Cuatro idiomas, un gran mundo.', de: 'Vier Sprachen, eine große Welt.' },
-          { en: 'We learn together day by day.', fr: 'Nous apprenons ensemble jour après jour.', es: 'Aprendemos juntos día tras día.', de: 'Wir lernen Tag für Tag zusammen.' },
-          { en: 'Hand in hand we find our way,', fr: 'Main dans la main, nous trouvons notre chemin,', es: 'Mano a mano encontramos nuestro camino,', de: 'Hand in Hand finden wir unseren Weg,' },
-          { en: 'Different words, one team today.', fr: 'Des mots différents, une équipe aujourd\'hui.', es: 'Palabras diferentes, un equipo hoy.', de: 'Verschiedene Worte, ein Team heute.' },
-          { en: 'One big world!', fr: 'Un grand monde!', es: '¡Un gran mundo!', de: 'Eine große Welt!' }
+        { label: 'Припев: Финал', lines: [
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'Four languages, one big world.', ru: 'Четыре языка, один большой мир.', segs: [{t:'Four languages, one big world',l:'en'}] },
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'We learn together day by day.', ru: 'Мы учимся вместе день за днём.', segs: [{t:'We learn together day by day',l:'en'}] },
+          { en: 'Hand in hand we find our way,', ru: 'Рука об руку мы находим свой путь,', segs: [{t:'Hand in hand we find our way',l:'en'}] },
+          { en: 'Different words, one team today.', ru: 'Разные слова, одна команда сегодня.', segs: [{t:'Different words, one team today',l:'en'}] },
+          { en: 'Hello, Bonjour, Hola, Hallo!', ru: 'Привет, Здравствуйте, Привет, Здравствуйте!', segs: [{t:'Hello',l:'en'},{t:'Bonjour',l:'fr'},{t:'Hola',l:'es'},{t:'Hallo',l:'de'}] },
+          { en: 'Four languages, one big world.', ru: 'Четыре языка, один большой мир.', segs: [{t:'Four languages, one big world',l:'en'}] },
+          { en: 'One big world!', ru: 'Один большой мир!', segs: [{t:'One big world',l:'en'}] }
         ]}
       ]
-    },
-    phrases: [
-      { lang: 'EN', text: 'Hello, my name is...', audio: 'audio/phrases/karaoke-en-1.mp3' },
-      { lang: 'EN', text: 'Four languages, one big world.', audio: 'audio/phrases/karaoke-en-2.mp3' },
-      { lang: 'EN', text: 'We learn together day by day.', audio: 'audio/phrases/karaoke-en-3.mp3' },
-      { lang: 'FR', text: 'Bonjour, je m\'appelle...', audio: 'audio/phrases/karaoke-fr-1.mp3' },
-      { lang: 'FR', text: 'Quatre langues, un grand monde.', audio: 'audio/phrases/karaoke-fr-2.mp3' },
-      { lang: 'FR', text: 'Nous apprenons ensemble jour après jour.', audio: 'audio/phrases/karaoke-fr-3.mp3' },
-      { lang: 'ES', text: 'Hola, me llamo...', audio: 'audio/phrases/karaoke-es-1.mp3' },
-      { lang: 'ES', text: 'Cuatro idiomas, un gran mundo.', audio: 'audio/phrases/karaoke-es-2.mp3' },
-      { lang: 'ES', text: 'Aprendemos juntos día tras día.', audio: 'audio/phrases/karaoke-es-3.mp3' },
-      { lang: 'DE', text: 'Hallo, ich heiße...', audio: 'audio/phrases/karaoke-de-1.mp3' },
-      { lang: 'DE', text: 'Vier Sprachen, eine große Welt.', audio: 'audio/phrases/karaoke-de-2.mp3' },
-      { lang: 'DE', text: 'Wir lernen Tag für Tag zusammen.', audio: 'audio/phrases/karaoke-de-3.mp3' }
-    ], xp: 50
+    }, xp: 50
   },
   {
     id: 'finalBoss', icon: '🎥', title: 'FINAL BOSS: Video Reboot',
@@ -884,11 +885,12 @@ function renderActiveChallenge(m) {
         <h4 style="color:var(--neon-cyan);margin-bottom:16px;text-align:center;">🎤 ${s.title}</h4>
         ${s.verses.map(v => `
           <div class="verse-label">${v.label}</div>
-          ${v.lines.map(line => `
-            <p><span class="highlight">${line.en}</span></p>
-            <p class="translation">🇫🇷 ${line.fr}</p>
-            <p class="translation">🇪🇸 ${line.es}</p>
-            <p class="translation">🇩🇪 ${line.de}</p>
+          ${v.lines.map((line, li) => `
+            <div class="song-line">
+              <div class="song-line-en">${line.en}</div>
+              <div class="song-line-ru">${line.ru}</div>
+              <button class="phrase-play-btn" onclick="playSongLine(${JSON.stringify(line.segs).replace(/"/g, '&quot;')})" title="Слушать на оригинальных языках">▶</button>
+            </div>
           `).join('')}
         `).join('')}
       </div>
@@ -896,7 +898,7 @@ function renderActiveChallenge(m) {
   }
 
   let phrasesHTML = '';
-  if (m.phrases && m.phrases.length > 0) {
+  if (!isKaraoke && m.phrases && m.phrases.length > 0) {
     const langs = ['EN', 'FR', 'ES', 'DE'];
     phrasesHTML = `
       <div class="phrase-section">
@@ -933,7 +935,6 @@ function renderActiveChallenge(m) {
       </div>
     </div>
     ${songHTML}
-    ${phrasesHTML}
     <div class="active-challenge-box">
       <h3>⚡ TIME TO MOVE!</h3>
       <div class="timer" id="timer">${m.duration}:00</div>
@@ -946,7 +947,23 @@ function renderActiveChallenge(m) {
       <button class="btn" id="startTimerBtn" onclick="startTimer(${m.duration})">▶ START TIMER</button>
       <button class="btn secondary" id="completeBtn" onclick="completeActiveChallenge()" style="display:none;margin-top:10px;">✓ COMPLETE CHALLENGE</button>
     </div>
+    ${phrasesHTML}
   `;
+}
+
+function playSongLine(segs) {
+  if (!('speechSynthesis' in window)) { alert('Speech synthesis not supported in this browser.'); return; }
+  speechSynthesis.cancel();
+  const voiceMap = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', de: 'de-DE' };
+  let delay = 0;
+  segs.forEach(seg => {
+    const utt = new SpeechSynthesisUtterance(seg.t);
+    utt.lang = voiceMap[seg.l] || 'en-US';
+    utt.rate = 0.85;
+    utt.volume = 1;
+    setTimeout(() => speechSynthesis.speak(utt), delay);
+    delay += seg.t.length * 70 + 300;
+  });
 }
 
 function playPhrase(audioSrc) {
