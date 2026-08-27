@@ -429,7 +429,8 @@ const state = {
   mode: 'online',
   xp: 0,
   keys: { EN: false, FR: false, ES: false, DE: false },
-  completed: []
+  completed: [],
+  teacher: false
 };
 
 // ============ MISSIONS DATA ============
@@ -671,6 +672,7 @@ function startMission() {
   state.agent = name.toUpperCase();
   state.age = age;
   state.mode = document.getElementById('agentMode').value;
+  state.teacher = name === 'Rocket';
   document.getElementById('hudAgent').textContent = 'AGENT ' + state.agent;
   document.getElementById('hudMode').textContent = state.mode === 'online' ? '🌐 ONLINE' : '📱 OFFLINE';
   document.getElementById('screen-intro').classList.remove('active');
@@ -692,7 +694,7 @@ function renderHub() {
     const isFinal = m.type === 'final';
     const allKeys = Object.values(state.keys).every(v => v);
     const completedCount = state.completed.length;
-    const unlocked = isFinal ? (done || (allKeys && completedCount >= 11)) : true;
+    const unlocked = isFinal ? (done || state.teacher || (allKeys && completedCount >= 11)) : true;
     const cardClass = isFinal ? 'final-boss' : (isActive ? 'active-challenge' : '');
     const unlockedClass = isFinal && unlocked && !done ? 'unlocked' : '';
     return `
@@ -717,7 +719,7 @@ function openMission(id) {
   if (!m) return;
   if (m.type === 'final') {
     const allKeys = Object.values(state.keys).every(v => v);
-    if (!allKeys || state.completed.length < 11) { alert('⚠️ Собери все 4 ключа и пройди минимум 11 миссий!'); return; }
+    if (!state.teacher && (!allKeys || state.completed.length < 11)) { alert('⚠️ Собери все 4 ключа и пройди минимум 11 миссий!'); return; }
     if (state.completed.includes(id)) {
       if (!confirm('⚠️ Миссия уже пройдена. Пройти заново?')) return;
     }
